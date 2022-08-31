@@ -51,4 +51,13 @@ app.post("/messages", (req, res) => {
 })
 
 
+app.get("/messages", (req,res) => {
+
+    const { limit } = req.query;
+    const {user: nome} = req.headers;
+    
+    res.send({message: "get /messages incompleto"});
+
+})
+
 app.listen(5000, () => console.log("Porta 5000"));

@@ -16,11 +16,11 @@ app.get("/", (req, res) => {
 })
 
 // - /participants
-app.post("/participants", (req, res) =>{
+app.post("/participants", (req, res) => {
 
-    const {name} = req.body;
+    const { name } = req.body;
 
-    if(!name){
+    if (!name) {
         res.sendStatus(422);
     }
 
@@ -28,19 +28,27 @@ app.post("/participants", (req, res) =>{
 
 })
 
-app.get("/participants", (req, res)=>{
+app.get("/participants", (req, res) => {
 
-    res.send({message: "requisição incompleta"})
+    res.send({ message: "requisição incompleta" })
 
 })
 
 // - /messages
 
-app.post("/massages", (req, res)=>{
+app.post("/messages", (req, res) => {
 
+    const { to, text, type } = req.body;
+    const { from } = req.headers;
 
-    
+    // ver se precisa também validar type e from
+    if(!to || !text ){
+        res.sendStatus(422);
+        return;
+    }
+
+    res.sendStatus(201);
 })
 
 
-app.listen(5000, () => console.log("Rodando Porta 5000"));
+app.listen(5000, () => console.log("Porta 5000"));

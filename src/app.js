@@ -28,5 +28,19 @@ app.post("/participants", (req, res) =>{
 
 })
 
+app.get("/participants", (req, res)=>{
+
+    res.send({message: "requisição incompleta"})
+
+})
+
+// - /messages
+
+app.post("/massages", (req, res)=>{
+
+
+    
+})
+
 
 app.listen(5000, () => console.log("Rodando Porta 5000"));

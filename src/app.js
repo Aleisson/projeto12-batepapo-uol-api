@@ -42,7 +42,7 @@ app.post("/messages", (req, res) => {
     const { from } = req.headers;
 
     // ver se precisa também validar type e from
-    if(!to || !text ){
+    if (!to || !text) {
         res.sendStatus(422);
         return;
     }
@@ -51,12 +51,24 @@ app.post("/messages", (req, res) => {
 })
 
 
-app.get("/messages", (req,res) => {
+app.get("/messages", (req, res) => {
 
     const { limit } = req.query;
+    const { user: nome } = req.headers;
+
+    res.status(200).send({ message: "get /messages incompleto" });
+
+})
+
+// - /status
+
+app.get("/status", (req, res) => {
+
     const {user: nome} = req.headers;
-    
-    res.send({message: "get /messages incompleto"});
+
+    console.log(nome);
+
+    res.sendStatus(200);
 
 })
 

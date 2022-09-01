@@ -64,7 +64,7 @@ app.get("/messages", (req, res) => {
 
 app.get("/status", (req, res) => {
 
-    const {user: nome} = req.headers;
+    const {User: {nome}} = req.headers;
 
     console.log(nome);
 

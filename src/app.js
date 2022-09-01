@@ -3,6 +3,7 @@ import { json } from "express";
 import cors from "cors";
 import dotnev from "dotenv";
 import { MongoClient } from "mongodb";
+import dayjs from "dayjs";
 
 dotnev.config();
 
@@ -35,13 +36,15 @@ app.post("/participants", async (req, res) => {
     }   
 
     try {
-        const checkName = await database.collection("participants").findOne({ name: `${name}` });
-        console.log("aqui"+ checkName);
+        const checkName = await database.collection("participants").findOne({ name: name });
+        // console.log(checkName)
         if (checkName) {
             res.sendStatus(409);
             return;
         }
 
+        await database.collection("participants").insertOne({name: name, lastStatus: Date.now() })
+        await database.collection("messages").insertOne({from: name, to: "Todos", text: "entra na sala...", type:"status", time: dayjs().format('HH:mm:ss')})
     } catch (error) {
         console.error(error);
         res.sendStatus(500);

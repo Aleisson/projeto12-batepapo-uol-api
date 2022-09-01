@@ -14,7 +14,7 @@ app.use(json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let database;
 mongoClient.connect(() => {
-    database.mongoClient.db("driven");
+    database = mongoClient.db("driven");
 });
 
 app.get("/", (req, res) => {
@@ -31,17 +31,20 @@ app.post("/participants", async (req, res) => {
 
     if (!name) {
         res.sendStatus(422);
-    }
+        return;
+    }   
 
     try {
-        const checkName = await database.collection("participants").findOne({ nome: `${name}` });
+        const checkName = await database.collection("participants").findOne({ name: `${name}` });
+        console.log("aqui"+ checkName);
         if (checkName) {
             res.sendStatus(409);
             return;
         }
 
     } catch (error) {
-
+        console.error(error);
+        res.sendStatus(500);
     }
 
     res.sendStatus(201);

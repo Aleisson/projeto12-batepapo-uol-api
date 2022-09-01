@@ -1,4 +1,5 @@
 import express from "express";
+import { json } from "express";
 import cors from "cors";
 import dotnev from "dotenv";
 import { MongoClient } from "mongodb";
@@ -13,7 +14,7 @@ app.use(json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let database;
 mongoClient.connect(() => {
-    database.mongoClient.db("Driven");
+    database.mongoClient.db("driven");
 });
 
 app.get("/", (req, res) => {
@@ -24,12 +25,23 @@ app.get("/", (req, res) => {
 })
 
 // - /participants
-app.post("/participants", (req, res) => {
+app.post("/participants", async (req, res) => {
 
     const { name } = req.body;
 
     if (!name) {
         res.sendStatus(422);
+    }
+
+    try {
+        const checkName = await database.collection("participants").findOne({ nome: `${name}` });
+        if (checkName) {
+            res.sendStatus(409);
+            return;
+        }
+
+    } catch (error) {
+
     }
 
     res.sendStatus(201);
@@ -72,7 +84,7 @@ app.get("/messages", (req, res) => {
 
 app.get("/status", (req, res) => {
 
-    const {User: {nome}} = req.headers;
+    const { User: { nome } } = req.headers;
 
     console.log(nome);
 

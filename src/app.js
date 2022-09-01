@@ -1,12 +1,20 @@
 import express from "express";
 import cors from "cors";
+import dotnev from "dotenv";
+import { MongoClient } from "mongodb";
 
+dotnev.config();
+
+// - express
 const app = express();
-
 app.use(cors());
-app.use(express.json());
-
-
+app.use(json());
+// - mongo
+const mongoClient = new MongoClient(process.env.MONGO_URI);
+let database;
+mongoClient.connect(() => {
+    database.mongoClient.db("Driven");
+});
 
 app.get("/", (req, res) => {
 

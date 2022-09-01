@@ -33,7 +33,7 @@ app.post("/participants", async (req, res) => {
     if (!name) {
         res.sendStatus(422);
         return;
-    }   
+    }
 
     try {
         const checkName = await database.collection("participants").findOne({ name: name });
@@ -43,8 +43,8 @@ app.post("/participants", async (req, res) => {
             return;
         }
 
-        await database.collection("participants").insertOne({name: name, lastStatus: Date.now() })
-        await database.collection("messages").insertOne({from: name, to: "Todos", text: "entra na sala...", type:"status", time: dayjs().format('HH:mm:ss')})
+        await database.collection("participants").insertOne({ name: name, lastStatus: Date.now() })
+        await database.collection("messages").insertOne({ from: name, to: "Todos", text: "entra na sala...", type: "status", time: dayjs().format('HH:mm:ss') })
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
@@ -54,9 +54,16 @@ app.post("/participants", async (req, res) => {
 
 })
 
-app.get("/participants", (req, res) => {
+app.get("/participants", async (req, res) => {
 
-    res.send({ message: "requisição incompleta" })
+    try {
+        const participants = await database.collection("participants").find().toArray();
+        res.send(participants);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+  
 
 })
 
@@ -68,7 +75,7 @@ app.post("/messages", (req, res) => {
     const { from } = req.headers;
 
     // ver se precisa também validar type e from
-    if (!to || !text) {
+    if (!to || !text || !type || !from) {
         res.sendStatus(422);
         return;
     }

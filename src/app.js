@@ -63,13 +63,13 @@ app.get("/participants", async (req, res) => {
         console.error(error);
         res.sendStatus(500);
     }
-  
+
 
 })
 
 // - /messages
 
-app.post("/messages", (req, res) => {
+app.post("/messages", async (req, res) => {
 
     const { to, text, type } = req.body;
     const { from } = req.headers;
@@ -80,16 +80,41 @@ app.post("/messages", (req, res) => {
         return;
     }
 
-    res.sendStatus(201);
+    try {
+        await database.collection("messages").insertOne({ from, text, type, time: dayjs().format("HH:mm:ss") })
+        res.sendStatus(201);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+
+
+
+
 })
 
 
-app.get("/messages", (req, res) => {
+app.get("/messages", async (req, res) => {
 
     const { limit } = req.query;
     const { user: nome } = req.headers;
 
-    res.status(200).send({ message: "get /messages incompleto" });
+    try {
+
+        const messages = await database.collection("messages").find().toArray();
+        if(limit){
+            //filter
+            res.status(200).send([...messages].reverse().split(limit));
+            return;
+        }
+
+        res.status(200).send([...messages].reverse().split(100));
+
+    } catch (error) {
+
+    }
+
+    
 
 })
 

@@ -4,6 +4,8 @@ import cors from "cors";
 import dotnev from "dotenv";
 import { MongoClient } from "mongodb";
 import dayjs from "dayjs";
+import joi from 'joi';
+
 
 dotnev.config();
 
@@ -26,14 +28,23 @@ app.get("/", (req, res) => {
 })
 
 // - /participants
+
+const participantSchema = joi.object({
+    name: joi.string().required()
+})
+
 app.post("/participants", async (req, res) => {
 
-    const { name } = req.body;
+    
+    // se tiver desconstruido
+    const valida = participantSchema.validate(req.body);
 
-    if (!name) {
+    if (valida.error) {
         res.sendStatus(422);
         return;
     }
+
+    const {name} = req.body;
 
     try {
         const checkName = await database.collection("participants").findOne({ name: name });
@@ -102,7 +113,7 @@ app.get("/messages", async (req, res) => {
     try {
 
         const messages = await database.collection("messages").find().toArray();
-        if(limit){
+        if (limit) {
             //filter
             res.status(200).send(messages.reverse().split(limit));
             return;
@@ -114,7 +125,7 @@ app.get("/messages", async (req, res) => {
 
     }
 
-    
+
 
 })
 

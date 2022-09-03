@@ -104,11 +104,11 @@ app.get("/messages", async (req, res) => {
         const messages = await database.collection("messages").find().toArray();
         if(limit){
             //filter
-            res.status(200).send([...messages].reverse().split(limit));
+            res.status(200).send(messages.reverse().split(limit));
             return;
         }
 
-        res.status(200).send([...messages].reverse().split(100));
+        res.status(200).send(messages.reverse().split(100));
 
     } catch (error) {
 

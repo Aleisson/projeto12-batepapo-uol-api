@@ -138,10 +138,9 @@ app.get("/messages", async (req, res) => {
         //filtrar aqui
        const messages = await database.collection("messages").find().toArray();
        
-       const  messagesFiltradas = [...messages].filter( message => message.to === "Todos" || message.to === user || message.from === user)
+       const  messagesFiltradas = [...messages].filter( message => message.to === "Todos" || message.to === user || message.from === user).reverse()
        
        if (limit) {
-            //filter
             res.status(200).send(messagesFiltradas.splice(0,limit));
             return;
         }
@@ -149,7 +148,8 @@ app.get("/messages", async (req, res) => {
         res.status(200).send(messagesFiltradas.slice(0,100));
 
     } catch (error) {
-
+        console.error(error);
+        res.sendStatus(500);
     }
 
 

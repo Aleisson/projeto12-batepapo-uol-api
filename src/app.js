@@ -78,9 +78,10 @@ app.post("/participants", async (req, res) => {
 
 app.get("/participants", async (req, res) => {
 
+
     try {
         const participants = await database.collection("participants").find().toArray();
-        
+
         res.send(participants);
     } catch (error) {
         console.error(error);
@@ -94,7 +95,7 @@ app.get("/participants", async (req, res) => {
 
 app.post("/messages", async (req, res) => {
 
-    const { from } = req.headers;
+    const { user } = req.headers;
 
 
     const valida = messageSchema.validate(req.body)
@@ -112,7 +113,7 @@ app.post("/messages", async (req, res) => {
     const { to, text, type } = req.body;
 
     try {
-        const checkName = await database.collection("participants").findOne({ name: from });
+        const checkName = await database.collection("participants").findOne({ name: user });
         //console.log("checkname:" + checkName);
         if (!checkName) {
             res.sendStatus(422);
@@ -120,7 +121,7 @@ app.post("/messages", async (req, res) => {
         }
 
 
-        await database.collection("messages").insertOne({ from, to, text, type, time: dayjs().format("HH:mm:ss") })
+        await database.collection("messages").insertOne({ from: user, to, text, type, time: dayjs().format("HH:mm:ss") })
         res.sendStatus(201);
     } catch (error) {
         console.error(error);
@@ -189,38 +190,38 @@ app.post("/status", async (req, res) => {
 
 async function testStatus(participant){
     try {
-        if((Date.now() - participant.lastStatus) > 15000){
+        if((Date.now() - participant.lastStatus) > 10000){
             await database.collection('participants').deleteOne({_id: ObjectId(participant._id)})
             await database.collection("messages").insertOne({ from: participant.name, to: "Todos", text: "sai na sala...", type: "status", time: dayjs().format('HH:mm:ss') })
         }
-    
+
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
     }
- 
+
 }
 
 
 async function removeParticipants(){
 
-    
+
 
     try {
         const participants = await database.collection("participants").find().toArray();
-        console.log(participants);
+        // console.log(participants);
         participants.forEach(participant => testStatus(participant));
-        console.log("aqui")
+
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
     }
 
-   
+
 
 }
 
-// setInterval(removeParticipants(), 15000);
+setInterval(removeParticipants, 15000);
 
 
 app.listen(5000, () => console.log("Porta 5000"));

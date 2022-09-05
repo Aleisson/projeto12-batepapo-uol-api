@@ -108,7 +108,15 @@ app.post("/messages", async (req, res) => {
     const { to, text, type } = req.body;
 
     try {
-        await database.collection("messages").insertOne({ from, text, type, time: dayjs().format("HH:mm:ss") })
+        const checkName = await database.collection("participants").findOne({ name: from });
+        //console.log("checkname:" + checkName.name);
+        if (!checkName) {
+            res.sendStatus(422);
+            return;
+        }
+
+
+        await database.collection("messages").insertOne({ from, to, text,  type, time: dayjs().format("HH:mm:ss") })
         res.sendStatus(201);
     } catch (error) {
         console.error(error);
@@ -124,18 +132,18 @@ app.post("/messages", async (req, res) => {
 app.get("/messages", async (req, res) => {
 
     const { limit } = req.query;
-    const { User: {nome} } = req.headers;
-
+    const { user } = req.headers;
+    console.log(user);
     try {
-
+        //filtrar aqui
         const messages = await database.collection("messages").find().toArray();
         if (limit) {
             //filter
-            res.status(200).send(messages.reverse().split(limit));
+            res.status(200).send(messages);
             return;
         }
 
-        res.status(200).send(messages.reverse().split(100));
+        res.status(200).send(messages.slice(-100).reverse());
 
     } catch (error) {
 

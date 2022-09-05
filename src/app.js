@@ -103,7 +103,6 @@ app.post("/messages", async (req, res) => {
     // ver se precisa também validar type e from
     if (valida.error) {
         valida.error.details.map(x => console.log(x.message));
-
         res.sendStatus(422);
         return;
     }
@@ -138,7 +137,7 @@ app.get("/messages", async (req, res) => {
 
     const { limit } = req.query;
     const { user } = req.headers;
-    console.log(user);
+    // console.log(user);
     try {
         //filtrar aqui
         const messages = await database.collection("messages").find().toArray();

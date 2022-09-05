@@ -4,7 +4,7 @@ import cors from "cors";
 import dotnev from "dotenv";
 import { MongoClient } from "mongodb";
 import dayjs from "dayjs";
-import joi from 'joi';
+import Joi from 'joi';
 
 
 dotnev.config();
@@ -27,11 +27,19 @@ app.get("/", (req, res) => {
 
 })
 
-// - /participants
+// - validação
 
-const participantSchema = joi.object({
-    name: joi.string().required()
+const participantSchema = Joi.object({
+    name: Joi.string().required()
 })
+const messageSchema = Joi.object({
+    to: Joi.string().required(),
+    text: Joi.string().required(),
+    type: Joi.string().valid( 'message','private_message').required()
+    
+})
+
+// - /participants
 
 app.post("/participants", async (req, res) => {
 
@@ -47,8 +55,8 @@ app.post("/participants", async (req, res) => {
     const {name} = req.body;
 
     try {
-        const checkName = await database.collection("participants").findOne({ name: name });
-        // console.log(checkName)
+        const checkName = await database.collection("participants").findOne({ name });
+        //console.log(checkName);
         if (checkName) {
             res.sendStatus(409);
             return;
@@ -82,14 +90,22 @@ app.get("/participants", async (req, res) => {
 
 app.post("/messages", async (req, res) => {
 
-    const { to, text, type } = req.body;
     const { from } = req.headers;
+    
+
+    const valida = messageSchema.validate(req.body) 
 
     // ver se precisa também validar type e from
-    if (!to || !text || !type || !from) {
+    if (valida.error) {
+        valida.error.details.map( x => console.log(x.message));
+       
         res.sendStatus(422);
         return;
     }
+
+    
+
+    const { to, text, type } = req.body;
 
     try {
         await database.collection("messages").insertOne({ from, text, type, time: dayjs().format("HH:mm:ss") })
@@ -108,7 +124,7 @@ app.post("/messages", async (req, res) => {
 app.get("/messages", async (req, res) => {
 
     const { limit } = req.query;
-    const { user: nome } = req.headers;
+    const { User: {nome} } = req.headers;
 
     try {
 
